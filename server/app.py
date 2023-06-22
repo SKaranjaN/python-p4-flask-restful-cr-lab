@@ -17,39 +17,26 @@ db.init_app(app)
 api = Api(app)
 
 class Plants(Resource):
+
     def get(self):
+        plants = [plant.to_dict() for plant in Plant.query.all()]
+        return make_response(jsonify(plants), 200)
 
-        response_dict = {
-            "index": "Welcome to the Plants RESTful API",
-        }
-
-        response = make_response(
-            jsonify(response_dict),
-            200,
-        )
-
-        return response
-    
     def post(self):
 
+        data = request.get_json()
+
         new_plant = Plant(
-            name=request.form['name'],
-            image=request.form['image'],
-            price=request.form['price'],
+            name=data['name'],
+            image=data['image'],
+            price=data['price'],
         )
 
         db.session.add(new_plant)
         db.session.commit()
 
-        response_dict = new_plant.to_dict()
-
-        response = make_response(
-            jsonify(response_dict),
-            201,
-        )
-
-        return response
-
+        return make_response(new_plant.to_dict(), 201)
+    
 api.add_resource(Plants, '/plants')
 
 class PlantByID(Resource):
